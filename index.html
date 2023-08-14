@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">                                                       <head prefix="og:http://ogp.me/ns#">                                     <meta charset="utf-8">                                                 <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+  <title>SVG Generator</title>
+  <meta property="og:type" content="website">
+  <style type="text/css">
+    .logo {
+      width: 300px;
+      height: 200px;
+      margin: 10px;
+      border: 1px solid black;
+    }
+  </style>
+  <meta name="theme-color" content="#ffffff">
+</head>
+
+<body>
+  <main>
+    <input type="text" id="input" placeholder="Enter text">
+    <br>
+    <input type="text" id="number" placeholder="Enter number of shapes">
+    <br>
+    <button id="submit">Submit</button>
+    <div id="output"></div>
+  </main>
+
+  <script>
+    const generateSVG = (text, numberOfShapes) => {
+      const getRandomFont = () => {
+        const fonts = [
+          "Arial",
+          "Helvetica",
+          "Times New Roman",
+          "Times",
+          "Courier New",
+          "Courier",                                                             "Verdana",
+          "Georgia",
+          "Palatino",
+          "Garamond"
+        ];
+
+        return fonts[Math.floor(Math.random() * fonts.length)];
+      }
+
+
+      const getRandomColor = () => {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+          color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      }
+
+      const getRandomNumber = (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      const getRandomShape = () => {
+        const shapes = [
+          `circle cx="${getRandomNumber(40, 70)}" cy="${getRandomNumber(40, 70)}" r="${getRandomNumber(5, 30)}"`,
+          `rect x="${getRandomNumber(10, 80)}" y="${getRandomNumber(10, 80)}" width="${getRandomNumber(10, 40)}" height="${getRandomNumber(10, 40)}"`,
+          `ellipse cx="${getRandomNumber(40, 70)}" cy="${getRandomNumber(40, 70)}" rx="${getRandomNumber(5, 30)}" ry="${getRandomNumber(5, 30)}"`,
+          `polygon points="${getRandomNumber(10, 80)},${getRandomNumber(10, 80)}, ${getRandomNumber(10, 80)},${getRandomNumber(10, 80)} ${getRandomNumber(10, 80)},${getRandomNumber(10, 80)}"`
+        ];
+
+        return shapes[Math.floor(Math.random() * shapes.length)];
+      }
+
+      const svgShapes = Array.from({ length: numberOfShapes }, getRandomShape);
+
+      const svg = `<svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+${svgShapes.map(shape => `  <${shape} fill="${getRandomColor()}"/>\n`).join('')}  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-size="16" font-family="${getRandomFont()}">${text}</text>
+</svg>`;
+
+      return svg.trim();
+    }
+
+    const button = document.querySelector('#submit');
+    button.addEventListener('click', () => {
+      const input = document.querySelector('#input').value;
+      const numberOfShapes = +document.querySelector('#number').value;
+      const output = document.querySelector('#output');
+      const svg = generateSVG(input, numberOfShapes);
+      output.innerHTML = svg + `<br><xmp>${svg}</xmp>`;
+    });
+
+
+    const download = (filename, content) => {
+      const link = document.createElement("a");
+      link.href = `data:text/plain;charset=utf-8,${encodeURIComponent(content)}`;
+      link.download = filename;
+
+      if (document.createEvent) {
+        const event = document.createEvent("mouseevents");
+        event.initEvent("click", true, true);
+        link.dispatchEvent(event);
+      } else {
+        link.click();
+      }
+    };
+
+    const output = document.querySelector('#output');
+    output.addEventListener('click', () => {
+      const input = document.querySelector('#input').value;
+      download(`${input || 'output'}.svg`, output.innerHTML.split('<xmp>')[1].split('</xmp>')[0]);
+    });
+  </script>
+</body>
+</html>
